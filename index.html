@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkHub Pro - Your Smart Bio Link Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="profile-header">
+      <div class="profile-image-container">
+        <img id="profileImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Ccircle cx='75' cy='75' r='75' fill='%234A90E2'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.3em'%3E👤%3C/text%3E%3C/svg%3E" alt="Profile" class="profile-image">
+      </div>
+      <h1 id="displayName" class="profile-name">Your Name</h1>
+      <p id="bioText" class="bio">Welcome to my LinkHub Pro page! Connect with me across the web.</p>
+      <button id="generateBioBtn" class="ai-btn">✨ Generate AI Bio</button>
+    </header>
+
+    <div class="links-container" id="linksContainer">
+      <!-- Links will be dynamically added here -->
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+      <h2>Customize Your Page</h2>
+      
+      <div class="form-group">
+        <label for="nameInput">Name:</label>
+        <input type="text" id="nameInput" placeholder="Enter your name">
+      </div>
+
+      <div class="form-group">
+        <label for="bioInput">Bio:</label>
+        <textarea id="bioInput" rows="3" placeholder="Enter your bio"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="themeSelect">Theme:</label>
+        <select id="themeSelect">
+          <option value="default">Default Blue</option>
+          <option value="dark">Dark Mode</option>
+          <option value="purple">Purple</option>
+          <option value="green">Green</option>
+          <option value="sunset">Sunset</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Add Link:</label>
+        <input type="text" id="linkTitle" placeholder="Link title">
+        <input type="url" id="linkUrl" placeholder="https://...">
+        <button id="addLinkBtn" class="btn">Add Link</button>
+      </div>
+
+      <button id="toggleAdminBtn" class="btn-secondary">Hide Admin Panel</button>
+    </div>
+
+    <button id="showAdminBtn" class="floating-btn" style="display: none;">⚙️</button>
+  </div>
+
+  <footer class="footer">
+    <p>Powered by LinkHub Pro | <a href="#" id="resetBtn">Reset to Defaults</a></p>
+  </footer>
+
+  <script>
+    // State management
+    let state = {
+      name: 'Your Name',
+      bio: 'Welcome to my LinkHub Pro page! Connect with me across the web.',
+      theme: 'default',
+      links: [
+        { title: 'Website', url: 'https://example.com', icon: '🌐' },
+        { title: 'Twitter', url: 'https://twitter.com', icon: '🐦' },
+        { title: 'GitHub', url: 'https://github.com', icon: '💻' },
+        { title: 'LinkedIn', url: 'https://linkedin.com', icon: '💼' }
+      ]
+    };
+
+    // Load saved state from localStorage
+    function loadState() {
+      const saved = localStorage.getItem('linkhubProState');
+      if (saved) {
+        state = JSON.parse(saved);
+        applyState();
+      } else {
+        renderLinks();
+      }
+    }
+
+    // Save state to localStorage
+    function saveState() {
+      localStorage.setItem('linkhubProState', JSON.stringify(state));
+    }
+
+    // Apply loaded state to UI
+    function applyState() {
+      document.getElementById('displayName').textContent = state.name;
+      document.getElementById('bioText').textContent = state.bio;
+      document.getElementById('nameInput').value = state.name;
+      document.getElementById('bioInput').value = state.bio;
+      document.getElementById('themeSelect').value = state.theme;
+      applyTheme(state.theme);
+      renderLinks();
+    }
+
+    // Render links
+    function renderLinks() {
+      const container = document.getElementById('linksContainer');
+      container.innerHTML = '';
+      state.links.forEach((link, index) => {
+        const linkEl = document.createElement('a');
+        linkEl.href = link.url;
+        linkEl.className = 'link-item';
+        linkEl.target = '_blank';
+        linkEl.rel = 'noopener noreferrer';
+        linkEl.innerHTML = `
+          <span class="link-icon">${link.icon}</span>
+          <span class="link-title">${link.title}</span>
+          <button class="delete-btn" data-index="${index}">×</button>
+        `;
+        container.appendChild(linkEl);
+      });
+
+      // Attach delete listeners
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const index = parseInt(e.target.dataset.index);
+          state.links.splice(index, 1);
+          saveState();
+          renderLinks();
+        });
+      });
+    }
+
+    // Apply theme
+    function applyTheme(theme) {
+      document.body.className = `theme-${theme}`;
+    }
+
+    // Generate AI Bio (simulated)
+    document.getElementById('generateBioBtn').addEventListener('click', () => {
+      const bios = [
+        `🚀 Digital innovator | Tech enthusiast | Building the future one link at a time`,
+        `✨ Creative professional | Passionate about connecting ideas and people`,
+        `🎯 Strategic thinker | Content creator | Making meaningful connections online`,
+        `💡 Entrepreneur | Lifelong learner | Sharing my journey with the world`,
+        `🌟 Designer | Developer | Dreamer | Turning visions into reality`
+      ];
+      const randomBio = bios[Math.floor(Math.random() * bios.length)];
+      state.bio = randomBio;
+      document.getElementById('bioText').textContent = randomBio;
+      document.getElementById('bioInput').value = randomBio;
+      saveState();
+    });
+
+    // Update name
+    document.getElementById('nameInput').addEventListener('input', (e) => {
+      state.name = e.target.value || 'Your Name';
+      document.getElementById('displayName').textContent = state.name;
+      saveState();
+    });
+
+    // Update bio
+    document.getElementById('bioInput').addEventListener('input', (e) => {
+      state.bio = e.target.value || 'Welcome to my LinkHub Pro page!';
+      document.getElementById('bioText').textContent = state.bio;
+      saveState();
+    });
+
+    // Change theme
+    document.getElementById('themeSelect').addEventListener('change', (e) => {
+      state.theme = e.target.value;
+      applyTheme(state.theme);
+      saveState();
+    });
+
+    // Add link
+    document.getElementById('addLinkBtn').addEventListener('click', () => {
+      const title = document.getElementById('linkTitle').value.trim();
+      const url = document.getElementById('linkUrl').value.trim();
+      if (title && url) {
+        const icons = ['🔗', '🌐', '📱', '💼', '📧', '🎨', '📷', '🎵', '🎬', '📚'];
+        const icon = icons[Math.floor(Math.random() * icons.length)];
+        state.links.push({ title, url, icon });
+        document.getElementById('linkTitle').value = '';
+        document.getElementById('linkUrl').value = '';
+        saveState();
+        renderLinks();
+      }
+    });
+
+    // Toggle admin panel
+    document.getElementById('toggleAdminBtn').addEventListener('click', () => {
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('showAdminBtn').style.display = 'block';
+    });
+
+    document.getElementById('showAdminBtn').addEventListener('click', () => {
+      document.getElementById('adminPanel').style.display = 'block';
+      document.getElementById('showAdminBtn').style.display = 'none';
+    });
+
+    // Reset to defaults
+    document.getElementById('resetBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('Are you sure you want to reset to defaults?')) {
+        localStorage.removeItem('linkhubProState');
+        location.reload();
+      }
+    });
+
+    // Initialize
+    loadState();
+  </script>
+</body>
+</html>
